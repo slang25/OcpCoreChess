@@ -7,9 +7,15 @@ using OcpCore.Engine.General.StaticData;
 
 namespace OcpCore.Engine.Bitboards;
 
+[InlineArray(8)]
+public struct Planes
+{
+    private ulong _white;
+}
+
 public class Game
 {
-    private readonly ulong[] _planes;
+    private Planes _planes;
 
     private readonly Moves _moves = Moves.Instance;
     
@@ -29,19 +35,14 @@ public class Game
     
     public Game()
     {
-        _planes = new ulong[Enum.GetValues<Plane>().Length];
+        _planes = new();
 
         State = new State();
     }
 
     public Game(Game game)
     {
-        var planeCount = Enum.GetValues<Plane>().Length;
-        
-        _planes = new ulong[planeCount];
-        
-        Buffer.BlockCopy(game._planes, 0, _planes, 0, planeCount * sizeof(ulong));
-
+        _planes = game._planes;
         State = new State(game.State);
     }
 
@@ -206,7 +207,7 @@ public class Game
 
     public void ParseFen(string fen)
     {
-        State = FenInterface.ParseFen(fen, _planes);
+        State = FenInterface.ParseFen(fen, ref _planes);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
